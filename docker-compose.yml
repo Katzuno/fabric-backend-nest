@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fabric-backend-nest
+    environment:
+      - PORT=${PORT}
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./src:/app/src
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    networks:
+      - sail
+
+#  fabric-rabbitmq:
+#    image: rabbitmq:3-management-alpine
+#    container_name: 'fabric-rabbitmq'
+#    ports:
+#      - 5673:5672
+#      - 15673:15672
+#    volumes:
+#      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+#      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+#    networks:
+#      - sail
+networks:
+  sail:
+    external: true
