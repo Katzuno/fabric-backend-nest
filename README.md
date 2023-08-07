@@ -24,4 +24,4 @@ The alternative it to open a shell in docker and run them from there.
 - Code organization
 - E2E test
 - Testing environments for e2e tests
-- Think about security, type of queues, etc.
+- Think about security, type of queues, requeue, ack, nack, etc.
