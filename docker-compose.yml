@@ -15,19 +15,8 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     networks:
-      - sail
+      - laravel-backend-fabric_sail
 
-#  fabric-rabbitmq:
-#    image: rabbitmq:3-management-alpine
-#    container_name: 'fabric-rabbitmq'
-#    ports:
-#      - 5673:5672
-#      - 15673:15672
-#    volumes:
-#      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-#      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-#    networks:
-#      - sail
 networks:
-  sail:
+  laravel-backend-fabric_sail:
     external: true

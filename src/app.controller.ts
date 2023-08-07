@@ -7,7 +7,6 @@ import {
 } from '@nestjs/microservices';
 import { RabbitMqPublisherService } from './rabbit-mq-publisher/rabbit-mq-publisher.service';
 import { OmdbApiService } from './omdb-api/omdb-api.service';
-import { Message } from 'amqplib';
 
 @Controller()
 export class AppController {
@@ -26,18 +25,40 @@ export class AppController {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
+    this.logger.log('Received Message records_to_analyze');
+
     if (data?.imdb_id) {
       const movieDetails = await this.omdbApiService.getMovieByImdbId(
         data.imdb_id,
       );
 
-      this.rabbitMqPublisherService.send('records_analyzed', {
-        initialRecord: data,
-        enrichData: movieDetails,
-      });
-      channel.ack(originalMsg as Message);
+      if (movieDetails?.Response === "True") {
+        await this.rabbitMqPublisherService.send('records_analyzed', {
+          initialRecord: data,
+          enrichData: movieDetails,
+        });
+      }
+
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const movieSearchDetails = await this.omdbApiService.searchMovieByTitle(
+          data.title,
+          data.release_year
+      );
+
+      if (movieSearchDetails?.Search && movieSearchDetails?.Search.length > 0)  {
+        // Get first position in this sketch, probably the best chance for a match
+        const firstMatch = movieSearchDetails.Search[0];
+        const movieDetails = await this.omdbApiService.getMovieByImdbId(firstMatch.imdbID);
+
+
+        if (movieDetails?.Response === "True")  {
+
+          await this.rabbitMqPublisherService.send('records_analyzed', {
+            initialRecord: data,
+            enrichData: movieDetails,
+          });
+        }
+      }
     }
   }
 }

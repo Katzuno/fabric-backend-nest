@@ -7,11 +7,10 @@ async function bootstrap() {
     AppModule,
     {
       transport: Transport.RMQ,
-      options: {
-        urls: ['amqp://guest:guest@fabric-rabbitmq/'],
-        queue: 'records_to_analyze',
-        noAck: false,
-      },
+        options: {
+            urls: [`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}/`],
+            queue: process.env.QUEUE_TO_ENRICH,
+        },
     },
   );
   await app.listen();

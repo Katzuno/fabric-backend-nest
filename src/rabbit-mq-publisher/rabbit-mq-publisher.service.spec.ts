@@ -1,18 +1,31 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { RabbitMqPublisherService } from './rabbit-mq-publisher.service';
+import {RabbitMqPublisherService} from "./rabbit-mq-publisher.service";
+import {Test, TestingModule} from "@nestjs/testing";
+import {ClientProxy} from "@nestjs/microservices";
 
-describe('RabbitMqService', () => {
+describe('RabbitMqPublisherService', () => {
   let service: RabbitMqPublisherService;
+  let mockClientProxy: Partial<ClientProxy>;
 
   beforeEach(async () => {
+    mockClientProxy = {
+      send: jest.fn().mockReturnValue({
+        toPromise: jest.fn()
+      }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [RabbitMqPublisherService],
+      providers: [
+        RabbitMqPublisherService,
+        { provide: 'rabbit-mq-module', useValue: mockClientProxy },
+      ],
     }).compile();
 
     service = module.get<RabbitMqPublisherService>(RabbitMqPublisherService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should send a message using client proxy', () => {
+    service.send('test-pattern', {});
+    expect(mockClientProxy.send).toHaveBeenCalled();
   });
 });
+
